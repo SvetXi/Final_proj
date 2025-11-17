@@ -50,8 +50,7 @@ class TestUIFunctionality:
         with allure.step("Verify search results are displayed"):
             # Даем странице время для стабилизации, но без sleep
             search_page.wait_for_page_load()
-            
-            # Проверяем что поиск выполнен - либо есть результаты, либо отображается пустой результат
+
             search_performed = (
                 search_page.are_results_displayed() or 
                 "search" in search_page.get_current_url().lower() or
@@ -74,7 +73,6 @@ class TestUIFunctionality:
             search_page.apply_author_filter(test_data.AUTHOR_FILTER)
             
             with allure.step("Verify filtered results"):
-                # Проверяем что фильтрация произошла - либо изменилось количество, либо применился фильтр
                 filtering_applied = (
                     search_page.get_results_count() != initial_count or
                     search_page.is_filter_applied(test_data.AUTHOR_FILTER)
@@ -106,3 +104,4 @@ class TestUIFunctionality:
                 pytest.skip("Could not add product to cart - possible UI issue")
             except Exception as e:
                 pytest.skip(f"Could not add product to cart: {e}")
+
