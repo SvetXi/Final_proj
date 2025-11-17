@@ -23,7 +23,7 @@ class TestUIFunctionality:
     @allure.title("FIN-3: Enter valid SMS code") 
     @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.skip(reason="SMS authorization requires real code or test environment")
-    def test_valid_sms_code(self, auth_page, main_page):
+    def test_valid_sms_code(self, auth_page):
         with allure.step("Open authorization page and enter phone"):
             auth_page.open()
             auth_page.enter_phone(test_data.VALID_PHONE)
@@ -48,8 +48,10 @@ class TestUIFunctionality:
             search_page = main_page.search_for_product(test_data.SEARCH_QUERY)
         
         with allure.step("Verify search results are displayed"):
+            # Даем странице время для стабилизации, но без sleep
             search_page.wait_for_page_load()
             
+            # Проверяем что поиск выполнен - либо есть результаты, либо отображается пустой результат
             search_performed = (
                 search_page.are_results_displayed() or 
                 "search" in search_page.get_current_url().lower() or
@@ -72,6 +74,7 @@ class TestUIFunctionality:
             search_page.apply_author_filter(test_data.AUTHOR_FILTER)
             
             with allure.step("Verify filtered results"):
+                # Проверяем что фильтрация произошла - либо изменилось количество, либо применился фильтр
                 filtering_applied = (
                     search_page.get_results_count() != initial_count or
                     search_page.is_filter_applied(test_data.AUTHOR_FILTER)
@@ -80,7 +83,7 @@ class TestUIFunctionality:
     
     @allure.title("FIN-16: Add product to cart")
     @allure.severity(allure.severity_level.CRITICAL)
-    def test_add_to_cart(self, search_page, cart_page):
+    def test_add_to_cart(self, search_page):
         with allure.step("Open search results page"):
             search_page.open_with_query(test_data.SEARCH_QUERY)
         
@@ -95,6 +98,7 @@ class TestUIFunctionality:
                 with allure.step("Verify product added to cart"):
                     cart_page = search_page.go_to_cart()
                     
+                    # Проверяем что корзина не пуста
                     cart_has_items = cart_page.get_cart_items_count() > 0
                     assert cart_has_items, "Cart should have items after adding product"
             
