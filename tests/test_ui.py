@@ -48,7 +48,6 @@ class TestUIFunctionality:
             search_page = main_page.search_for_product(test_data.SEARCH_QUERY)
         
         with allure.step("Verify search results are displayed"):
-            # Даем странице время для стабилизации, но без sleep
             search_page.wait_for_page_load()
 
             search_performed = (
@@ -96,7 +95,6 @@ class TestUIFunctionality:
                 with allure.step("Verify product added to cart"):
                     cart_page = search_page.go_to_cart()
                     
-                    # Проверяем что корзина не пуста
                     cart_has_items = cart_page.get_cart_items_count() > 0
                     assert cart_has_items, "Cart should have items after adding product"
             
@@ -104,4 +102,5 @@ class TestUIFunctionality:
                 pytest.skip("Could not add product to cart - possible UI issue")
             except Exception as e:
                 pytest.skip(f"Could not add product to cart: {e}")
+
 
