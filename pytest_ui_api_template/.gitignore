@@ -298,4 +298,31 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+
 # End of https://www.toptal.com/developers/gitignore/api/windows,python,visualstudiocode,test
+# Virtual environment
+venv/
+.env
+
+# Screenshots
+screenshots/
+
+# Allure results
+allure-results/
+allure-report/
+
+# PyCache
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
