@@ -10,13 +10,16 @@ class Settings:
     
     # UI Settings
     BASE_UI_URL = "https://www.chitai-gorod.ru"
-    BROWSER = os.getenv("BROWSER", "chrome")
-    HEADLESS = os.getenv("HEADLESS", "False").lower() == "true"
+    BROWSER = "chrome"
+    HEADLESS = True  # Для стабильности
+    
+    # Wait settings
     IMPLICIT_WAIT = 5
-    EXPLICIT_WAIT = 20
+    EXPLICIT_WAIT = 10
     
     # Test Data
     CUSTOMER_CITY_ID = 213
     AB_TEST_GROUP = 1
 
 settings = Settings()
+
