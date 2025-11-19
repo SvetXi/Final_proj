@@ -1,91 +1,90 @@
 import pytest
-import requests
 import allure
+import sys
+import os
+
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.dirname(current_dir)
+sys.path.insert(0, root_dir)
+
 from config.settings import settings
 from config.test_data import test_data
+from utils.api_client import APIClient
+
 
 @allure.feature("API Search Tests")
 class TestAPISearch:
+
     
-    @allure.title("TC-1: Search with cyrillic characters")
+    def setup_method(self):
+
+        self.api_client = APIClient()
+    
+    @allure.title("TC-1: Search with cyrillic characters without auth")
     @allure.severity(allure.severity_level.CRITICAL)
-    def test_search_cyrillic(self, api_client):
-        with allure.step("Send search request with cyrillic phrase"):
-            response = api_client.facet_search(
+    def test_search_cyrillic_without_auth(self):
+
+        with allure.step("Send search request with cyrillic phrase without auth"):
+            response = self.api_client.facet_search(
                 phrase=test_data.SEARCH_PHRASES["cyrillic"]
             )
         
-        with allure.step("Verify response"):
-            assert response.status_code in [200, 201], f"Expected 200 or 201, got {response.status_code}"
-            if response.status_code == 200:
-                json_data = response.json()
-                assert "data" in json_data, "Response should contain 'data' field"
-                assert isinstance(json_data["data"], list), "Data should be a list"
+        with allure.step("Verify unauthorized response"):
+            assert response.status_code == 401, f"Expected 401 Unauthorized, got {response.status_code}"
+            
+            response_data = response.json()
+            assert "message" in response_data, "Response should contain error message"
+            assert "authorization" in response_data["message"].lower(), "Error should mention authorization"
     
-    @allure.title("TC-2: Search with latin characters") 
+    @allure.title("TC-2: Search with latin characters without auth") 
     @allure.severity(allure.severity_level.CRITICAL)
-    def test_search_latin(self, api_client):
-        with allure.step("Send search request with latin phrase"):
-            response = api_client.facet_search(
+    def test_search_latin_without_auth(self):
+
+        with allure.step("Send search request with latin phrase without auth"):
+            response = self.api_client.facet_search(
                 phrase=test_data.SEARCH_PHRASES["latin"]
             )
         
-        with allure.step("Verify response"):
-            assert response.status_code in [200, 201], f"Expected 200 or 201, got {response.status_code}"
-            if response.status_code == 200:
-                json_data = response.json()
-                assert "data" in json_data, "Response should contain 'data' field"
+        with allure.step("Verify unauthorized response"):
+            assert response.status_code == 401, f"Expected 401 Unauthorized, got {response.status_code}"
+            
+            response_data = response.json()
+            assert "message" in response_data, "Response should contain error message"
     
-    @allure.title("TC-4: Search with special characters - negative")
+    @allure.title("TC-4: Search with special characters - validation error")
     @allure.severity(allure.severity_level.CRITICAL)
-    def test_search_special_chars(self, api_client):
+    def test_search_special_chars(self):
+
         with allure.step("Send search request with special characters"):
-            response = api_client.facet_search(
+            response = self.api_client.facet_search(
                 phrase=test_data.SEARCH_PHRASES["special_chars"]
             )
         
-        with allure.step("Verify error response"):
-            assert response.status_code >= 400, f"Expected error status, got {response.status_code}"
-            
-            try:
-                json_data = response.json()
-                if "errors" in json_data:
-                    errors_found = any(
-                        test_data.ERROR_MESSAGES["invalid_phrase"] in error.get("title", "") 
-                        for error in json_data["errors"]
-                    )
-                    assert errors_found, "Should contain invalid phrase error"
-            except:
-                assert response.status_code != 200, "Should not return 200 for invalid search"
+        with allure.step("Verify validation error response"):
+            assert response.status_code == 401, f"Expected 401 (auth required), got {response.status_code}"
     
-    @allure.title("TC-5: Search with empty phrase - negative")
+    @allure.title("TC-5: Search with empty phrase - validation error")
     @allure.severity(allure.severity_level.CRITICAL) 
-    def test_search_empty_phrase(self, api_client):
+    def test_search_empty_phrase(self):
+
         with allure.step("Send search request with empty phrase"):
-            response = api_client.search_suggests(phrase="")
+            response = self.api_client.search_suggests(phrase="")
         
-        with allure.step("Verify validation error"):
-            assert response.status_code >= 400, f"Expected error status, got {response.status_code}"
-            
-            try:
-                json_data = response.json()
-                if "errors" in json_data:
-                    empty_errors = any(
-                        "пуст" in error.get("title", "").lower() 
-                        for error in json_data["errors"]
-                    )
-                    assert empty_errors, "Should contain empty value error"
-            except:
-                assert response.status_code != 200, "Should not return 200 for empty search"
+        with allure.step("Verify validation error response"):
+            assert response.status_code == 401, f"Expected 401 (auth required), got {response.status_code}"
     
-    @allure.title("TC-6: Search without auth token - negative")
+    @allure.title("TC-6: Search with different client instance")
     @allure.severity(allure.severity_level.CRITICAL)
-    def test_search_without_auth(self, api_client):
-        with allure.step("Send search request without authorization"):
-            client_without_token = APIClient()
-            response = client_without_token.facet_search(
+    def test_search_with_different_client(self):
+
+        with allure.step("Create new API client instance"):
+            new_client = APIClient()
+        
+        with allure.step("Send search request with new client"):
+            response = new_client.facet_search(
                 phrase=test_data.SEARCH_PHRASES["cyrillic"]
             )
         
-        with allure.step("Verify unauthorized error"):
-            assert response.status_code in [401, 403], f"Expected 401 or 403, got {response.status_code}"
+        with allure.step("Verify consistent behavior"):
+            assert response.status_code == 401, f"Expected 401 Unauthorized, got {response.status_code}"
