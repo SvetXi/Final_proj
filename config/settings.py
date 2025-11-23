@@ -11,7 +11,7 @@ class Settings:
     # UI Settings
     BASE_UI_URL = "https://www.chitai-gorod.ru"
     BROWSER = "chrome"
-    HEADLESS = True  # Для стабильности
+    HEADLESS = True 
     
     # Wait settings
     IMPLICIT_WAIT = 5
@@ -20,6 +20,9 @@ class Settings:
     # Test Data
     CUSTOMER_CITY_ID = 213
     AB_TEST_GROUP = 1
+    # API Token
+    API_TOKEN = "your_token_here"
 
+    
 settings = Settings()
 
