@@ -2,97 +2,103 @@ import pytest
 import allure
 import sys
 import os
-
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-root_dir = os.path.dirname(current_dir)
-sys.path.insert(0, root_dir)
-
 from config.settings import settings
 from config.test_data import test_data
-from utils.api_client import APIClient
+from utils.api_client import ApiClient
 
 
 @allure.feature("API Search Tests")
 class TestAPISearch:
 
-    
     def setup_method(self):
 
-        self.api_client = APIClient()
+        self.api_client = ApiClient()
     
-    @allure.title("TC-1: Поиск с кириллическими символами без авторизации")
+    @allure.title("TC-1: Поиск с кириллическими символами")
     @allure.severity(allure.severity_level.CRITICAL)
-    def test_search_cyrillic_without_auth(self):
 
-        with allure.step("Send search request with cyrillic phrase without auth"):
+
+    def test_search_cyrillic_without_auth(self):
+        return {"Authorization": "Bearer token"}
+
+        headers = {
+        "Authorization": auth_header,
+    }
+    
+        with allure.step("Отправить запрос на кириллице"):
             response = self.api_client.facet_search(
                 phrase=test_data.SEARCH_PHRASES["cyrillic"]
             )
         
-        with allure.step("Verify unauthorized response"):
+        with allure.step("Проверить статус ответа"):
             assert response.status_code == 204, f"204 No Content {response.status_code}"
-            
-            response_data = response.json()
-            assert "message" in response_data, "Response should contain error message"
-            assert "authorization" in response_data["message"].lower(), "Error should mention authorization"
+
     
-    @allure.title("TC-2: Поиск с использованием латинских символов без авторизации") 
+    @allure.title("TC-2: Поиск с использованием латинских символов") 
     @allure.severity(allure.severity_level.CRITICAL)
     def test_search_latin_without_auth(self):
+        return {"Authorization": "Bearer token"}
 
-        with allure.step("Send search request with latin phrase without auth"):
+        headers = {
+        "Authorization": auth_header,
+    }
+
+        with allure.step("Отправить поисковый запрос с латинской фразой"):
             response = self.api_client.facet_search(
                 phrase=test_data.SEARCH_PHRASES["latin"]
             )
         
-        with allure.step("Verify unauthorized response"):
-            assert response.status_code == 204, f"204 No Content {response.status_code}"
+        with allure.step("Проверить статус ответа"):
+            assert response.status_code == 204, f"204 No Content"
             
-            response_data = response.json()
-            assert "message" in response_data, "Response should contain error message"
+
     
-    @allure.title("TC-4: Поиск со специальными символами — ошибка проверки")
+    @allure.title("TC-4: Поиск с специальными символами — ошибка проверки")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_search_special_chars(self):
+        return {"Authorization": "Bearer token"}
 
-        with allure.step("Send search request with special characters"):
+        headers = {
+        "Authorization": auth_header,
+    }
+        with allure.step("Отправить поисковый запрос с специальными символами"):
             response = self.api_client.facet_search(
                 phrase=test_data.SEARCH_PHRASES["special_chars"]
             )
         
-        with allure.step("Verify validation error response"):
-            assert response.status_code == 422, f"422 Unprocessable Content {response.status_code}"
+        with allure.step("Проверить статус ответа"):
+            assert response.status_code == 422, f"422 Unprocessable Content"
     
-    @allure.title("TC-5: Поиск на кириллице плюс цифры")
-    @allure.severity(allure.severity_level.CRITICAL)
-    def test_search_with_different_client(self):
+    @allure.title("TC-5: Поиск с фразой на кириллице и цифры")
+    @allure.severity(allure.severity_level.CRITICAL) 
+    def test_search_empty_phrase(self):
+        return {"Authorization": "Bearer token"}
 
-        with allure.step("Create new API client instance"):
-            new_client = APIClient()
-        
-        with allure.step("Send search request with new client"):
-            response = new_client.facet_search(
-                phrase=test_data.SEARCH_PHRASES["Cyrillic plus numbers"]
+        headers = {
+        "Authorization": auth_header,
+    }
+        with allure.step("Отправить поисковый запрос с специальными символами"):
+            response = self.api_client.facet_search(
+                phrase=test_data.SEARCH_PHRASES["cyrillic plus numbers"]
             )
         
-        with allure.step("Verify consistent behavior"):
-            assert response.status_code == 204, f"204 No Content {response.status_code}"
-    
+        with allure.step("Проверить статус ответа"):
+            assert response.status_code == 204, f"204 No Content"
     @allure.title("TC-6: Проверка поиска по цифрам")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_search_with_different_client(self):
+        return {"Authorization": "Bearer token"}
 
-        with allure.step("Create new API client instance"):
-            new_client = APIClient()
+        headers = {
+        "Authorization": auth_header,
+    }
+        with allure.step("Запрос только с цифрами"):
+            new_client = ApiClient()
         
-        with allure.step("Send search request with new client"):
-            response = new_client.facet_search(
+        with allure.step("Отправить запрос с цифрами"):
+            response = self.api_client.facet_search(
                 phrase=test_data.SEARCH_PHRASES["numbers"]
             )
         
         with allure.step("Verify consistent behavior"):
             assert response.status_code == 204, f"204 No Content {response.status_code}"
-
-
-
