@@ -8,10 +8,10 @@ from webdriver_manager.firefox import GeckoDriverManager
 
 from utils.api_client import APIClient
 from config.settings import settings
-from pages.auth_page import AuthPage
-from pages.main_page import MainPage
-from pages.search_page import SearchPage
-from pages.cart_page import CartPage
+from page.auth_page import AuthPage
+from page.main_page import MainPage
+from page.search_page import SearchPage
+from page.cart_page import CartPage
 
 @pytest.fixture
 def api_client():
@@ -20,64 +20,56 @@ def api_client():
 
 @pytest.fixture(scope="function")
 def driver():
-    """Фикстура для веб-драйвера"""
-    driver = None
-    try:
-        if settings.BROWSER.lower() == "chrome":
-            service = ChromeService(ChromeDriverManager().install())
-            options = webdriver.ChromeOptions()
-            if settings.HEADLESS:
-                options.add_argument("--headless")
-            options.add_argument("--no-sandbox")
-            options.add_argument("--disable-dev-shm-usage")
-            options.add_argument("--window-size=1920,1080")
-            options.add_argument("--disable-gpu")
-            options.add_argument("--disable-extensions")
-            options.add_experimental_option('excludeSwitches', ['enable-logging'])
-            driver = webdriver.Chrome(service=service, options=options)
+    driver = webdriver.Chrome()
         
-        elif settings.BROWSER.lower() == "firefox":
-            service = FirefoxService(GeckoDriverManager().install())
-            options = webdriver.FirefoxOptions()
-            if settings.HEADLESS:
-                options.add_argument("--headless")
-            driver = webdriver.Firefox(service=service, options=options)
-        
-        else:
-            raise ValueError(f"Unsupported browser: {settings.BROWSER}")
-        
-        driver.implicitly_wait(settings.IMPLICIT_WAIT)
-        driver.maximize_window()
-        
-        yield driver
-        
-    except Exception as e:
-        print(f"Error initializing driver: {e}")
-        raise
-    finally:
-        if driver:
-            driver.quit()
+    yield driver
+
+    driver.quit()
+
+class BasePage:
+    def __init__(self, driver):
+        self.driver = driver
+
+class AuthPage(BasePage):
+    def enter_phone(self, phone_number: str):
+        el = self.driver.find_element("id", "phone_input")
+        el.clear()
+        el.send_keys(phone_number)
+
+    def click_send_code(self):
+        self.driver.find_element("id", "send_code_btn").click()
+
+    def is_sms_code_input_visible(self) -> bool:
+        try:
+            el = self.driver.find_element("id", "sms_code_input")
+            return el.is_displayed()
+        except Exception:
+            return False
+
+class MainPage(BasePage):
+    pass
+
+class SearchPage(BasePage):
+    pass
+
+class CartPage(BasePage):
+    pass
 
 @pytest.fixture
 def auth_page(driver):
-    """Фикстура для страницы авторизации"""
     return AuthPage(driver)
 
 @pytest.fixture
 def main_page(driver):
-    """Фикстура для главной страницы"""
     return MainPage(driver)
 
 @pytest.fixture
 def search_page(driver):
-    """Фикстура для страницы поиска"""
     return SearchPage(driver)
 
 @pytest.fixture
 def cart_page(driver):
-    """Фикстура для страницы корзины"""
     return CartPage(driver)
-
 # Хуки для Allure
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
