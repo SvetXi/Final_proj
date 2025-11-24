@@ -5,7 +5,7 @@ class TestData:
         "latin": "book", 
         "special_chars": "!@#$%",
         "cyrillic plus numbers": "книга 12",
-        "numbers": "книга 12"
+        "numbers": "1825"
     }
     
     # UI Test Data
@@ -14,4 +14,5 @@ class TestData:
     AUTHOR_FILTER = "книги"
 
 test_data = TestData()
+
 
