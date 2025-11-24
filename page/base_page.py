@@ -4,7 +4,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import allure
 from config.settings import settings
-from utils.helpers import helpers
+from utils.helpers import Helpers
+
+helpers = Helpers()
 
 class BasePage:
     def __init__(self, driver: WebDriver):
