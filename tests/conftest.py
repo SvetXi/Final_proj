@@ -6,7 +6,7 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 
-from utils.api_client import APIClient
+from utils.api_client import ApiClient
 from config.settings import settings
 from page.auth_page import AuthPage
 from page.main_page import MainPage
@@ -16,11 +16,14 @@ from page.cart_page import CartPage
 @pytest.fixture
 def api_client():
     """Фикстура для API клиента"""
-    return APIClient()
+    return ApiClient()
 
 @pytest.fixture(scope="function")
 def driver():
-    driver = webdriver.Chrome()
+    options = webdriver.ChromeOptions()
+    prefs = {"profile.default_content_setting_values.geolocation" :2}
+    options.add_experimental_option("prefs",prefs)
+    driver = webdriver.Chrome(chrome_options=options)
         
     yield driver
 
@@ -70,6 +73,7 @@ def search_page(driver):
 @pytest.fixture
 def cart_page(driver):
     return CartPage(driver)
+
 # Хуки для Allure
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
