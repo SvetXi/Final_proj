@@ -3,6 +3,10 @@ import allure
 from .base_page import BasePage
 from .cart_page import CartPage
 from config.test_data import test_data
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support import expected_conditions as EC
+
 
 class SearchPage(BasePage):
     # Локаторы
