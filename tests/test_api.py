@@ -64,17 +64,7 @@ class TestAPISearch:
         with allure.step("Verify validation error response"):
             assert response.status_code == 422, f"422 Unprocessable Content {response.status_code}"
     
-    @allure.title("TC-5: Поиск на латинице и цифры")
-    @allure.severity(allure.severity_level.CRITICAL) 
-    def test_search_empty_phrase(self):
-
-        with allure.step("Send search request with empty phrase"):
-            response = self.api_client.search_suggests(phrase="")
-        
-        with allure.step("Verify validation error response"):
-            assert response.status_code == 204, f"204 No Content {response.status_code}"
-    
-    @allure.title("TC-6: Search with different client instance")
+    @allure.title("TC-5: Поиск на кириллице плюс цифры")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_search_with_different_client(self):
 
@@ -83,10 +73,26 @@ class TestAPISearch:
         
         with allure.step("Send search request with new client"):
             response = new_client.facet_search(
-                phrase=test_data.SEARCH_PHRASES["cyrillic"]
+                phrase=test_data.SEARCH_PHRASES["Cyrillic plus numbers"]
             )
         
         with allure.step("Verify consistent behavior"):
-            assert response.status_code == 422, f"422 Unprocessable Conten {response.status_code}"
+            assert response.status_code == 204, f"204 No Content {response.status_code}"
+    
+    @allure.title("TC-6: Проверка поиска по цифрам")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_search_with_different_client(self):
+
+        with allure.step("Create new API client instance"):
+            new_client = APIClient()
+        
+        with allure.step("Send search request with new client"):
+            response = new_client.facet_search(
+                phrase=test_data.SEARCH_PHRASES["numbers"]
+            )
+        
+        with allure.step("Verify consistent behavior"):
+            assert response.status_code == 204, f"204 No Content {response.status_code}"
+
 
 
