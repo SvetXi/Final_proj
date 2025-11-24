@@ -13,11 +13,3 @@ class Helpers:
             return True
         except TimeoutException:
             return False
-
-helpers = Helpers()
-                if attempt == max_attempts - 1:
-                    raise e
-                time.sleep(delay)
-
-
-helpers = Helpers()
