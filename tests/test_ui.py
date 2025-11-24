@@ -102,5 +102,3 @@ class TestUIFunctionality:
                 pytest.skip("Could not add product to cart - possible UI issue")
             except Exception as e:
                 pytest.skip(f"Could not add product to cart: {e}")
-
-
